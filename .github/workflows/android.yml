@@ -27,6 +27,9 @@ jobs:
       - name: Tests unitaires
         run: ./gradlew --stacktrace test
 
+      - name: Analyse lint (tous les modules)
+        run: ./gradlew --stacktrace :app:lintDebug
+
       - name: APK de debug
         run: ./gradlew --stacktrace assembleDebug
 

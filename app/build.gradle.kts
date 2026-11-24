@@ -38,6 +38,17 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        // Analyse aussi tous les modules dont dépend l'application.
+        checkDependencies = true
+        abortOnError = true
+        warningsAsErrors = false
+        // Versions des bibliothèques : suivies à part, pas une erreur de code.
+        disable += setOf("GradleDependency", "AndroidGradlePluginVersion", "NewerVersionAvailable", "OldTargetApi")
+        textReport = true
+        textOutput = file("stdout")
+    }
 }
 
 kotlin {
