@@ -110,7 +110,36 @@ expect vod-pause.xml "En pause" "Pause VOD"
 adb shell input keyevent KEYCODE_BACK
 sleep 3
 
-# 7. Plantages et erreurs du lecteur
+# 7. Paramètres : ouvrir, ouvrir la boîte d'ajout, l'annuler, revenir
+adb shell input keyevent KEYCODE_DPAD_UP
+sleep 1
+adb shell input keyevent KEYCODE_DPAD_UP
+sleep 1
+dump_ui focus-header.xml
+adb shell input keyevent KEYCODE_DPAD_CENTER
+sleep 2
+dump_ui settings.xml
+expect settings.xml "Listes M3U" "Paramètres"
+expect settings.xml "Ajouter une liste" "Paramètres"
+adb shell input keyevent KEYCODE_DPAD_RIGHT
+sleep 1
+adb shell input keyevent KEYCODE_DPAD_CENTER
+sleep 2
+dump_ui settings-add.xml
+expect settings-add.xml "Adresse de la liste M3U" "Paramètres (ajout)"
+adb shell input keyevent KEYCODE_BACK
+sleep 1
+adb shell input keyevent KEYCODE_BACK
+sleep 1
+dump_ui settings-close.xml
+if grep -qF "Listes M3U" "$OUT/settings-close.xml"; then
+  adb shell input keyevent KEYCODE_BACK
+  sleep 2
+fi
+dump_ui home-final.xml
+expect home-final.xml "Direct de test HLS" "Retour des Paramètres"
+
+# 8. Plantages et erreurs du lecteur
 adb logcat -d > "$OUT/logcat.txt"
 if grep -E "FATAL EXCEPTION|has died|ANR in com.lionne.tv" "$OUT/logcat.txt"; then
   ko "Plantage détecté dans logcat"
