@@ -32,7 +32,7 @@ expect() { # $1 = fichier, $2 = texte attendu, $3 = étape
     ko "$3 : « $2 » absent. Textes à l'écran :"
     grep -o 'text="[^"]\+"' "$OUT/$1" | sort -u | head -20 | sed 's/^/      /'
     echo "      --- début du fichier $1 ---"
-    head -c 1500 "$OUT/$1" | sed 's/></>\n</g' | grep -o '\(class\|text\|resource-id\|content-desc\)="[^"]*"' | head -40 | sed 's/^/      /'
+    head -c 4000 "$OUT/$1" | sed 's/></>\n</g' | grep -o '\(class\|text\|resource-id\|content-desc\)="[^"]*"' | head -40 | sed 's/^/      /'
   fi
 }
 
@@ -94,6 +94,7 @@ sleep 2
 dump_ui vod.xml
 expect vod.xml "Big Buck Bunny" "Lecture VOD"
 expect vod.xml "Films libres" "Lecture VOD"
+expect vod.xml " / " "Lecture VOD (position)"
 sleep 15
 dump_ui vod-playing.xml
 adb shell screencap -p /sdcard/vod.png && adb pull /sdcard/vod.png "$OUT/vod.png" >/dev/null
@@ -102,6 +103,10 @@ if grep -qF "Lecture impossible" "$OUT/vod-playing.xml"; then
 else
   ok "Lecture VOD : aucune erreur affichée après 15 s"
 fi
+adb shell input keyevent KEYCODE_DPAD_CENTER
+sleep 2
+dump_ui vod-pause.xml
+expect vod-pause.xml "En pause" "Pause VOD"
 adb shell input keyevent KEYCODE_BACK
 sleep 3
 

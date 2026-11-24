@@ -36,6 +36,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.lionne.tv.core.data.PlaybackPositionStore
 import com.lionne.tv.core.data.ResumePolicy
+import com.lionne.tv.core.data.TimeFormat
 import com.lionne.tv.core.data.Zapping
 import com.lionne.tv.core.designsystem.LocalBrand
 import com.lionne.tv.core.model.ContentType
@@ -46,7 +47,7 @@ import kotlinx.coroutines.delay
 /**
  * Lecture plein écran.
  * - Direct : ▲/▼ ou CH+/CH− pour changer de chaîne, OK pour afficher le bandeau.
- * - À la demande : commandes de lecture Media3 et reprise là où on s'était arrêté.
+ * - À la demande : OK lecture/pause, ◀ ▶ 10 s, position affichée, reprise là où on s'était arrêté.
  */
 @Composable
 fun PlayerScreen(
@@ -61,7 +62,7 @@ fun PlayerScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var overlayRequest by remember { mutableIntStateOf(0) }
     var overlayVisible by remember { mutableStateOf(true) }
-    var playerView by remember { mutableStateOf<PlayerView?>(null) }
+    var progress by remember { mutableStateOf<String?>(null) }
     val focusRequester = remember { FocusRequester() }
     val latest by rememberUpdatedState(current)
 
@@ -85,7 +86,6 @@ fun PlayerScreen(
         error = null
         val start = if (current.type == ContentType.VOD) positions.get(current.id) else 0L
         lionnePlayer.play(current, start)
-        playerView?.useController = current.type == ContentType.VOD
         overlayRequest++
     }
 
@@ -93,6 +93,18 @@ fun PlayerScreen(
         overlayVisible = true
         delay(OVERLAY_DURATION_MS)
         overlayVisible = false
+    }
+
+    // Position de lecture des vidéos, rafraîchie tant que le bandeau est affiché.
+    LaunchedEffect(overlayVisible, current.id) {
+        progress = null
+        while (overlayVisible && current.type == ContentType.VOD) {
+            val position = TimeFormat.format(lionnePlayer.positionMs)
+            val duration = lionnePlayer.durationMs.takeIf { it > 0 }?.let(TimeFormat::format) ?: "--:--"
+            val paused = if (lionnePlayer.exoPlayer.isPlaying || lionnePlayer.exoPlayer.playWhenReady) "" else " · En pause"
+            progress = "$position / $duration$paused"
+            delay(PROGRESS_REFRESH_MS)
+        }
     }
 
     BackHandler {
@@ -109,7 +121,7 @@ fun PlayerScreen(
             .onPreviewKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                 if (current.type == ContentType.VOD) {
-                    handleVodKey(event.key, lionnePlayer, playerView)
+                    handleVodKey(event.key, lionnePlayer).also { handled -> if (handled) overlayRequest++ }
                 } else {
                     when (event.key) {
                         Key.DirectionUp, Key.ChannelUp -> {
@@ -133,9 +145,8 @@ fun PlayerScreen(
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     this.player = lionnePlayer.exoPlayer
-                    useController = entry.type == ContentType.VOD
+                    useController = false
                     keepScreenOn = true
-                    playerView = this
                 }
             },
             modifier = Modifier.fillMaxSize(),
@@ -145,6 +156,7 @@ fun PlayerScreen(
         if (overlayVisible || message != null) {
             InfoOverlay(
                 entry = current,
+                progress = progress,
                 error = message,
                 showZapHint = current.type == ContentType.LIVE && liveChannels.size > 1,
                 modifier = Modifier.align(Alignment.BottomStart),
@@ -160,6 +172,7 @@ fun PlayerScreen(
 @Composable
 private fun InfoOverlay(
     entry: MediaEntry,
+    progress: String?,
     error: String?,
     showZapHint: Boolean,
     modifier: Modifier = Modifier,
@@ -180,6 +193,14 @@ private fun InfoOverlay(
         entry.description?.let {
             Text(text = it, style = MaterialTheme.typography.bodyMedium, color = brand.onSurfaceMuted, maxLines = 2)
         }
+        if (progress != null) {
+            Text(text = progress, style = MaterialTheme.typography.titleMedium, color = Color.White)
+            Text(
+                text = "OK : lecture / pause   ◀ ▶ : 10 s",
+                style = MaterialTheme.typography.bodySmall,
+                color = brand.onSurfaceMuted,
+            )
+        }
         if (error != null) {
             Text(text = error, style = MaterialTheme.typography.bodyMedium, color = brand.accent)
         }
@@ -194,8 +215,8 @@ private fun InfoOverlay(
 }
 
 /** Télécommande en vidéo à la demande : OK = lecture/pause, ◀ ▶ = recul/avance de 10 s. */
-private fun handleVodKey(key: Key, player: LionnePlayer, view: PlayerView?): Boolean {
-    val handled = when (key) {
+private fun handleVodKey(key: Key, player: LionnePlayer): Boolean =
+    when (key) {
         Key.DirectionCenter, Key.Enter, Key.NumPadEnter, Key.MediaPlayPause -> {
             player.togglePlayPause()
             true
@@ -219,9 +240,7 @@ private fun handleVodKey(key: Key, player: LionnePlayer, view: PlayerView?): Boo
         Key.DirectionUp, Key.DirectionDown -> true
         else -> false
     }
-    if (handled) view?.showController()
-    return handled
-}
 
 private const val OVERLAY_DURATION_MS = 4_000L
 private const val SEEK_STEP_MS = 10_000L
+private const val PROGRESS_REFRESH_MS = 500L

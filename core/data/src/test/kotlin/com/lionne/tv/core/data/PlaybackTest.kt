@@ -39,4 +39,12 @@ class PlaybackTest {
         assertFalse(store.toggle("a"))
         assertTrue(store.ids().isEmpty())
     }
+
+    @Test
+    fun `affichage des durees`() {
+        assertEquals("0:00", TimeFormat.format(0))
+        assertEquals("4:05", TimeFormat.format(245_000))
+        assertEquals("1:02:09", TimeFormat.format(3_729_000))
+        assertEquals("0:00", TimeFormat.format(-5))
+    }
 }

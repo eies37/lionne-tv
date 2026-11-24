@@ -17,9 +17,14 @@ Chaque entrée indique l'auteur (Claude, ChatGPT ou eies37) et l'ID de tâche.
 - Accueil en rangées (favoris, direct par catégorie, VOD par catégorie) et lecteur plein écran avec bandeau, en version minimale. (Claude, T-006)
 - Thème configurable `BrandConfig` (couleurs et nom provisoires). Icône et bannière TV provisoires. (Claude, T-006)
 - Tests unitaires : catalogue, sources, M3U, JSON, zapping, reprise, rangées de l'accueil. (Claude, T-006)
-- CI GitHub Actions : tests, compilation et APK de debug téléchargeable. (Claude, T-008)
+- CI GitHub Actions : tests, compilation debug et release (R8), APK de debug téléchargeable. (Claude, T-008)
+- Test automatique sur émulateur Android : accueil, lecture d'une chaîne, zapping, retour, rangée VOD, recherche de plantages, disponibilité des flux de démonstration. (Claude, T-008)
+- Publication d'un APK de test téléchargeable depuis la TV, déclenchée par une étiquette `v*`. (Claude, T-008)
 - `README.md` : installation, touches de la télécommande, compilation. (Claude, T-006)
 - `COMMUNICATION.md` : journal des échanges Claude ↔ ChatGPT, avec règles d'usage et premier message de Claude. (Claude, T-001)
 - `TASKS.md` : tableau de répartition des tâches. (Claude, T-001)
 - `PROJECT.md` : cahier des charges, architecture modulaire, conventions et journal des décisions. (Claude, T-001, T-005)
 - `CHANGELOG.md` : ce fichier. (Claude, T-001)
+
+### Corrigé
+- Au retour du lecteur, le focus revient sur le contenu qu'on vient de quitter (avant : aucune vignette sélectionnée). Détecté par le test sur émulateur. (Claude, T-006)
