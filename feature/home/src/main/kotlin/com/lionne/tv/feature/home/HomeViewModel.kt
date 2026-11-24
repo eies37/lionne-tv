@@ -20,6 +20,23 @@ class HomeViewModel(
     private val favorites: FavoritesStore,
 ) : ViewModel() {
 
+    /**
+     * Où était l'utilisateur avant de lancer une lecture, pour l'y ramener au retour :
+     * contenu lancé (focus) et défilement vertical de l'accueil.
+     */
+    var lastPlayedId: String? = null
+        private set
+    var scrollIndex: Int = 0
+        private set
+    var scrollOffset: Int = 0
+        private set
+
+    fun rememberPosition(playedId: String?, index: Int, offset: Int) {
+        if (playedId != null) lastPlayedId = playedId
+        scrollIndex = index
+        scrollOffset = offset
+    }
+
     private val _state = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val state: StateFlow<HomeUiState> = _state.asStateFlow()
 

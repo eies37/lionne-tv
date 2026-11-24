@@ -25,8 +25,20 @@ dump_ui() { # $1 = nom du fichier
 }
 
 expect() { # $1 = fichier, $2 = texte attendu, $3 = étape
-  if grep -qF "$2" "$OUT/$1"; then ok "$3 : « $2 » affiché"; else ko "$3 : « $2 » absent"; fi
+  if grep -qF "$2" "$OUT/$1"; then
+    ok "$3 : « $2 » affiché"
+  else
+    ko "$3 : « $2 » absent. Textes à l'écran :"
+    grep -o 'text="[^"]\+"' "$OUT/$1" | sort -u | head -20 | sed 's/^/      /'
+  fi
 }
+
+# 0. Disponibilité des flux de démonstration (externes : simple avertissement)
+echo "--- Flux de démonstration ---"
+grep -o '"url": *"[^"]*"' app/src/main/assets/catalog-demo.json | sed 's/.*"\(http[^"]*\)"/\1/' | while read -r url; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 15 "$url")
+  if [ "$code" = "200" ]; then ok "HTTP $code $url"; else info "HTTP $code $url"; fi
+done
 
 adb install -r "$APK" || { ko "installation de l'APK"; exit 1; }
 adb logcat -c

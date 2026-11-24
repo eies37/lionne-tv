@@ -10,15 +10,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
@@ -54,8 +60,8 @@ fun HomeScreen(
             )
             is HomeUiState.Ready -> HomeContent(
                 state = current,
+                viewModel = viewModel,
                 onPlay = onPlay,
-                onToggleFavorite = viewModel::toggleFavorite,
             )
         }
     }
@@ -64,13 +70,28 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     state: HomeUiState.Ready,
+    viewModel: HomeViewModel,
     onPlay: (MediaEntry) -> Unit,
-    onToggleFavorite: (String) -> Unit,
 ) {
     val brand = LocalBrand.current
-    val firstCard = remember { FocusRequester() }
+    val focusTarget = remember { FocusRequester() }
+    var targetFocused by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState(viewModel.scrollIndex, viewModel.scrollOffset)
+
+    // Au retour du lecteur, le focus revient sur le contenu lancé ; sinon sur la première vignette.
+    val targetId = viewModel.lastPlayedId
+        ?.takeIf { id -> state.rows.any { row -> row.items.any { it.entry.id == id } } }
+        ?: state.rows.firstOrNull()?.items?.firstOrNull()?.entry?.id
+    val targetRowKey = state.rows.firstOrNull { row -> row.items.any { it.entry.id == targetId } }?.key
+
+    DisposableEffect(listState) {
+        onDispose {
+            viewModel.rememberPosition(null, listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
+        }
+    }
 
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 48.dp, vertical = 27.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -100,23 +121,45 @@ private fun HomeContent(
                 )
             }
         }
-        itemsIndexed(state.rows, key = { _, row -> row.key }) { rowIndex, row ->
+        items(state.rows, key = { row -> row.key }) { row ->
+            val isTargetRow = row.key == targetRowKey
+            val rowState = rememberLazyListState(
+                initialFirstVisibleItemIndex = if (isTargetRow) {
+                    row.items.indexOfFirst { it.entry.id == targetId }.coerceAtLeast(0)
+                } else {
+                    0
+                },
+            )
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(text = row.title, style = MaterialTheme.typography.titleMedium)
                 LazyRow(
+                    state = rowState,
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(vertical = 8.dp),
                 ) {
-                    itemsIndexed(row.items, key = { _, item -> item.entry.id }) { index, item ->
+                    items(row.items, key = { item -> item.entry.id }) { item ->
                         val focusModifier =
-                            if (rowIndex == 0 && index == 0) Modifier.focusRequester(firstCard) else Modifier
+                            if (isTargetRow && item.entry.id == targetId) {
+                                Modifier
+                                    .focusRequester(focusTarget)
+                                    .onFocusChanged { targetFocused = it.isFocused }
+                            } else {
+                                Modifier
+                            }
                         MediaCard(
                             title = item.entry.title,
                             subtitle = item.entry.description ?: item.entry.category,
                             badge = if (item.entry.type == ContentType.LIVE) "DIRECT" else null,
                             isFavorite = item.isFavorite,
-                            onClick = { onPlay(item.entry) },
-                            onLongClick = { onToggleFavorite(item.entry.id) },
+                            onClick = {
+                                viewModel.rememberPosition(
+                                    item.entry.id,
+                                    listState.firstVisibleItemIndex,
+                                    listState.firstVisibleItemScrollOffset,
+                                )
+                                onPlay(item.entry)
+                            },
+                            onLongClick = { viewModel.toggleFavorite(item.entry.id) },
                             modifier = focusModifier,
                         )
                     }
@@ -125,10 +168,19 @@ private fun HomeContent(
         }
     }
 
-    LaunchedEffect(state.rows.isNotEmpty()) {
-        if (state.rows.isNotEmpty()) runCatching { firstCard.requestFocus() }
+    // Une seule fois par affichage de l'accueil : ne pas voler le focus quand on ajoute un favori.
+    LaunchedEffect(Unit) {
+        if (targetId == null) return@LaunchedEffect
+        // Les vignettes n'existent qu'après la première mise en page : on réessaie quelques images.
+        repeat(FOCUS_ATTEMPTS) {
+            withFrameNanos { }
+            if (targetFocused) return@LaunchedEffect
+            runCatching { focusTarget.requestFocus() }
+        }
     }
 }
+
+private const val FOCUS_ATTEMPTS = 30
 
 @Composable
 private fun FailuresBanner(failures: List<SourceFailure>) {
