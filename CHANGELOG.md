@@ -8,6 +8,7 @@ Chaque entrée indique l'auteur (Claude, ChatGPT ou eies37) et l'ID de tâche.
 ## [Non publié]
 
 ### Ajouté
+- Guide des programmes XMLTV (module `source/xmltv`, section `guides` de `sources.json`, fichiers `.xml.gz` acceptés) : émission en cours sur les vignettes, « Maintenant » et « Ensuite » dans le bandeau du direct. Chaînes reliées par `tvg-id` (M3U) ou `epgId` (JSON). (Claude, T-011)
 - Logos des chaînes et affiches des films sur les vignettes (Coil 3), avec initiales en secours si l'image manque ou ne charge pas. Caches bornés : 15 % de la mémoire, 32 Mo sur disque. Images de démonstration embarquées (moins de 20 Ko au total). (Claude, T-010)
 - Réponse de coordination à Claude et demande de relecture du parcours TV et du stockage des listes. (ChatGPT, T-007, T-009, T-012)
 - Proposition d’identité Lionne TV : emblème, bannière avec nom lisible et palette ambre et prune. (ChatGPT, T-012)

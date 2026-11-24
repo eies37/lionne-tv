@@ -53,6 +53,7 @@ dependencies {
     // Sources de contenu : retirer une ligne ici (et dans AppContainer) suffit à désactiver un format.
     implementation(project(":source:jsoncatalog"))
     implementation(project(":source:m3u"))
+    implementation(project(":source:xmltv"))
 
     // Écrans
     implementation(project(":feature:home"))

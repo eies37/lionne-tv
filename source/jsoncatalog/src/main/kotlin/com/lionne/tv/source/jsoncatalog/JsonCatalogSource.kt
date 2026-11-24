@@ -54,6 +54,7 @@ object JsonCatalogParser {
                     description = entry.description,
                     logoUrl = entry.logo,
                     posterUrl = entry.poster,
+                    epgId = entry.epgId,
                 )
             }
     }
@@ -79,4 +80,5 @@ internal data class JsonEntry(
     val description: String? = null,
     val logo: String? = null,
     val poster: String? = null,
+    val epgId: String? = null,
 )

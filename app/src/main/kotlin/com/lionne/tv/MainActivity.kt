@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
 private fun LionneNavigation(container: AppContainer) {
     var playingId by rememberSaveable { mutableStateOf<String?>(null) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
-    val homeViewModel = viewModel { HomeViewModel(container.catalog, container.favorites) }
+    val homeViewModel = viewModel { HomeViewModel(container.catalog, container.favorites, container.guide) }
     val snapshot by container.catalog.snapshot.collectAsStateWithLifecycle()
 
     BackHandler(enabled = settingsOpen) { settingsOpen = false }
@@ -62,6 +62,7 @@ private fun LionneNavigation(container: AppContainer) {
             liveChannels = snapshot?.live.orEmpty(),
             positions = container.positions,
             onBack = { playingId = null },
+            nowNext = { container.guide.nowNext(it.epgId) },
         )
     }
 }

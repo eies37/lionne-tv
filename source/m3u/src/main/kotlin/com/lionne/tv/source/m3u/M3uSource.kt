@@ -61,6 +61,7 @@ object M3uParser {
                             category = category,
                             sourceId = sourceId,
                             logoUrl = info?.attributes?.get("tvg-logo")?.takeIf { it.isNotBlank() },
+                            epgId = info?.attributes?.get("tvg-id")?.takeIf { it.isNotBlank() },
                         )
                     }
                     pendingInfo = null

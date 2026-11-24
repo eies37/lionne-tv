@@ -4,6 +4,8 @@ import android.content.Context
 import com.lionne.tv.core.data.CatalogRepository
 import com.lionne.tv.core.data.CompositeTextLoader
 import com.lionne.tv.core.data.FavoritesStore
+import com.lionne.tv.core.data.GuideRegistry
+import com.lionne.tv.core.data.GuideRepository
 import com.lionne.tv.core.data.HttpTextLoader
 import com.lionne.tv.core.data.PlaybackPositionStore
 import com.lionne.tv.core.data.SourceRegistry
@@ -14,6 +16,7 @@ import com.lionne.tv.core.storage.PreferencesUserPlaylistStore
 import com.lionne.tv.core.storage.PreferencesPlaybackPositionStore
 import com.lionne.tv.source.jsoncatalog.JsonCatalogSourceFactory
 import com.lionne.tv.source.m3u.M3uSourceFactory
+import com.lionne.tv.source.xmltv.XmltvGuideFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -46,12 +49,25 @@ class AppContainer(context: Context) {
 
     val userPlaylists = PreferencesUserPlaylistStore(appContext)
 
-    /** Sources déclarées dans `assets/sources.json`. */
+    /** Formats de guide des programmes installés. */
+    private val guideRegistry = GuideRegistry(
+        mapOf(XmltvGuideFactory.TYPE to XmltvGuideFactory),
+    )
+
+    private val config: SourcesConfig by lazy {
+        appContext.assets.open(SOURCES_FILE).bufferedReader().use { SourcesConfig.parse(it.readText()) }
+    }
+
+    /** Sources de `assets/sources.json` + listes personnelles ajoutées dans les Paramètres. */
     val catalog: CatalogRepository by lazy {
-        val config = appContext.assets.open(SOURCES_FILE).bufferedReader().use { SourcesConfig.parse(it.readText()) }
         CatalogRepository {
             sourceRegistry.create(SourcesConfig(config.sources + userPlaylists.read()), textLoader)
         }
+    }
+
+    /** Guides des programmes déclarés dans `assets/sources.json` (section `guides`). */
+    val guide: GuideRepository by lazy {
+        GuideRepository(guideRegistry.create(config.guides, textLoader))
     }
 
     private companion object {
