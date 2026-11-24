@@ -4,82 +4,132 @@ Cahier des charges et architecture. Document vivant : tout point marqué **[À C
 
 ## 1. Vision
 
-**[À CONFIRMER]** Lionne TV est une application de télévision destinée aux Smart TV.
+Lionne TV est une application de télévision pour **Android TV / Google TV** (Sony, TCL, Philips, Hisense sous Google TV, Chromecast avec Google TV, box Android…).
 
-- Objectif principal : _à définir_
-- Public visé : _à définir_
-- Ce qui la distingue : _à définir_
+- **Exigence clé d'eies37 : l'application doit être modulable.** On doit pouvoir ajouter, retirer ou remplacer une source de contenu, un écran, le lecteur ou l'identité visuelle sans réécrire le reste.
+- Objectif principal, public visé, ce qui la distingue : _à définir_ **[À CONFIRMER]**
 
 ## 2. Périmètre fonctionnel
 
-### 2.1 Fonctions envisagées [À CONFIRMER]
+Décision d'eies37 (2026-11-24) : la première version couvre **tous les types de contenu**.
 
-| Fonction | Priorité (MVP / plus tard) | Statut |
-|----------|----------------------------|--------|
-| Lecture de flux en direct | ? | À confirmer |
-| Catalogue VOD | ? | À confirmer |
-| Guide des programmes (EPG) | ? | À confirmer |
-| Favoris / reprise de lecture | ? | À confirmer |
-| Comptes utilisateurs / profils | ? | À confirmer |
-| Recherche | ? | À confirmer |
-| Contrôle parental | ? | À confirmer |
+| Fonction | Version | Statut |
+|----------|---------|--------|
+| Chaînes en direct (HLS, DASH, MPEG-TS) | MVP | Fait (T-006) |
+| Zapping ▲/▼ et CH+/CH− | MVP | Fait (T-006) |
+| Vidéo à la demande avec reprise de lecture | MVP | Fait (T-006) |
+| Catalogue JSON (direct + VOD) | MVP | Fait (T-006) |
+| Listes IPTV M3U / M3U8 | MVP | Fait (T-006), ajout depuis l'écran : T-009 |
+| Favoris (appui long sur OK) | MVP | Fait (T-006) |
+| Interface 10-foot définitive | MVP | À faire (T-007, ChatGPT) |
+| Logos et affiches | MVP | À faire (T-010) |
+| Guide des programmes (EPG, XMLTV) | Plus tard | À faire (T-011) |
+| Recherche | Plus tard | À planifier |
+| Comptes / profils / backend | Plus tard | **[À CONFIRMER]** (Q3) |
+| Contrôle parental | Plus tard | **[À CONFIRMER]** |
 
-### 2.2 Hors périmètre
+### Hors périmètre
 
-_à définir_
+- Lionne TV ne fournit aucune liste de chaînes. Le catalogue de démonstration n'utilise que des flux de test publics et des films libres (Blender, CC BY). Les listes M3U ajoutées relèvent de la responsabilité de l'utilisateur, qui doit détenir les droits de diffusion.
 
-## 3. Exigences non fonctionnelles (proposées)
+## 3. Exigences non fonctionnelles
 
-- **Navigation entièrement à la télécommande** (touches directionnelles, OK, retour) : focus toujours visible, aucun élément accessible uniquement à la souris ou au tactile.
-- **Interface 10-foot :** textes lisibles à 3 m, marges de sécurité de l'écran respectées.
-- **Faible empreinte :** les TV ont peu de stockage et de mémoire. Cible proposée : application installée de moins de 50 Mo, cache borné et vidable. **[À CONFIRMER]**
-- **Performances :** démarrage à froid en moins de 3 s et changement de chaîne en moins de 1,5 s sur une TV d'entrée de gamme. **[À CONFIRMER]**
-- **Vidéo :** HLS et/ou DASH, de 1080p à 4K selon l'appareil. DRM à prévoir si le contenu l'exige.
-- **Accessibilité :** sous-titres, contraste suffisant, compatibilité avec le lecteur d'écran de la plateforme.
-- **Langue :** français d'abord. Prévoir l'internationalisation dès le départ ? **[À CONFIRMER]**
+- **Navigation entièrement à la télécommande** (touches directionnelles, OK, retour, CH+/CH−, touches média) : focus toujours visible.
+- **Interface 10-foot :** textes lisibles à 3 m, marges de sécurité de l'écran (48 dp × 27 dp).
+- **Faible empreinte :** les TV ont peu de stockage. Pas de bibliothèque superflue (ni injection de dépendances, ni client HTTP externe), R8 et réduction des ressources en release, positions de lecture bornées à 200 entrées. Cible : APK release de moins de 15 Mo. **[À CONFIRMER]**
+- **Robustesse :** une source injoignable n'empêche jamais les autres de s'afficher. L'erreur est affichée à l'écran.
+- **Compatibilité :** Android 5.0 (API 21) et plus.
+- **Langue :** interface en français. Internationalisation : **[À CONFIRMER]**
 
-## 4. Architecture
+## 4. Architecture (décidée : D-002, D-003)
 
-**Pas encore décidée.** Elle dépend des plateformes cibles (Q1) et du type de contenu (Q2). Pistes à comparer (tâche T-005) :
+Application **native Kotlin** : Jetpack Compose for TV pour l'interface, Media3/ExoPlayer pour la lecture. Le projet est découpé en **modules Gradle indépendants**.
 
-| Option | Principe | Plateformes couvertes | Points forts | Points faibles |
-|--------|----------|-----------------------|--------------|----------------|
-| A. Native Android TV | Kotlin, Jetpack Compose for TV, Media3/ExoPlayer | Android TV, Google TV, Fire TV | Meilleures performances et lecteur robuste | Ne couvre ni Samsung ni LG |
-| B. Application web TV | TypeScript et framework web, empaquetée pour Tizen et webOS | Samsung, LG, navigateur | Un seul code pour plusieurs marques | Performances variables selon la TV, outils propres à chaque fabricant |
-| C. Hybride | Cœur partagé (données, logique) avec une interface native par plateforme | Toutes | Couverture maximale | Coût et complexité plus élevés |
+```
+app/                    Assemblage : branche les modules entre eux (AppContainer)
+│
+├── feature/home        Écran d'accueil (rangées favoris / direct / VOD)
+├── feature/player      Lecteur plein écran (zapping, reprise, bandeau)
+│
+├── source/jsoncatalog  Source « json » : catalogue Lionne TV
+├── source/m3u          Source « m3u » : listes IPTV
+│
+├── core/designsystem   Thème, marque (BrandConfig), composants TV
+├── core/playback       LionnePlayer : seule porte d'entrée vers Media3
+├── core/storage        Favoris et positions (préférences Android)
+├── core/data           Kotlin pur : registre de sources, catalogue, zapping, reprise
+└── core/model          Kotlin pur : MediaEntry, ContentSource
+```
 
-Composants probables quelle que soit l'option :
-- **Application TV :** interface, navigation, lecteur.
-- **Couche données :** catalogue, EPG, favoris, cache local.
-- **Backend** (si Q3 = oui) : API, authentification, gestion du catalogue.
+**Règles de dépendance :**
+- `core/model` et `core/data` sont en Kotlin pur : aucune dépendance Android, testables sur la JVM.
+- Un module `source/*` ne dépend que de `core/data`. Un module `feature/*` ne dépend jamais d'un autre `feature/*` ni d'une `source/*`.
+- Seul `app` connaît tous les modules.
 
-## 5. Organisation du dépôt (proposée)
+### Comment l'application est modulable
+
+| Je veux… | Ce que je change |
+|----------|------------------|
+| Ajouter, retirer ou désactiver une source | `app/src/main/assets/sources.json` (sans recompiler le code) |
+| Ajouter un **format** de source (Xtream, backend maison…) | Nouveau module `source/<format>` qui implémente `ContentSource` et `SourceFactory`, puis une ligne dans `AppContainer` |
+| Changer les couleurs ou le nom affiché | `BrandConfig` dans `core/designsystem` |
+| Refaire un écran | Son module `feature/*` uniquement |
+| Changer de moteur de lecture | `core/playback` uniquement |
+| Stocker favoris et positions ailleurs (cloud, compte) | Nouvelle implémentation de `FavoritesStore` / `PlaybackPositionStore`, branchée dans `AppContainer` |
+
+### Format de `sources.json`
+
+```json
+{ "sources": [
+  { "type": "json", "id": "demo", "name": "Démo", "location": "asset://catalog-demo.json" },
+  { "type": "m3u", "id": "perso", "name": "Ma liste", "location": "https://…/liste.m3u", "enabled": false }
+] }
+```
+
+`location` accepte `asset://` (fichier embarqué), `http://` et `https://`.
+
+### Format du catalogue JSON
+
+```json
+{ "entries": [
+  { "id": "info", "title": "Lionne Info", "type": "LIVE", "category": "Info",
+    "url": "https://…/master.m3u8", "description": "…", "logo": "https://…", "poster": "https://…" }
+] }
+```
+
+`type` : `LIVE` (par défaut) ou `VOD`.
+
+## 5. Organisation du dépôt
 
 ```
 lionne-tv/
-├── COMMUNICATION.md   # échanges Claude ↔ ChatGPT
-├── TASKS.md           # répartition des tâches
-├── PROJECT.md         # ce document
-├── CHANGELOG.md       # suivi des modifications
-├── README.md          # présentation et démarrage (T-006)
-├── docs/              # maquettes, schémas, décisions détaillées
-├── app/               # code de l'application TV (structure selon l'option retenue)
-└── backend/           # seulement si nécessaire
+├── COMMUNICATION.md   échanges Claude ↔ ChatGPT
+├── TASKS.md           répartition des tâches
+├── PROJECT.md         ce document
+├── CHANGELOG.md       suivi des modifications
+├── README.md          présentation, compilation, installation
+├── .github/workflows/ CI : tests + APK de debug
+├── gradle/            versions centralisées (libs.versions.toml) et wrapper
+├── app/ core/ source/ feature/   modules (voir § 4)
 ```
 
 ## 6. Conventions
 
 - **Branches :** `claude/T-xxx-description`, `chatgpt/T-xxx-description`.
 - **Commits :** `T-xxx: description courte au présent`.
-- **Pull requests :** relues par l'autre IA, fusionnées par eies37. Chaque PR met à jour `CHANGELOG.md`.
-- **Langue :** documentation en français. Langue du code et des commentaires : **[À CONFIRMER]**.
+- **Pull requests :** relues par l'autre IA, fusionnées par eies37, CI verte obligatoire. Chaque PR met à jour `CHANGELOG.md`.
+- **Versions des bibliothèques :** uniquement dans `gradle/libs.versions.toml`.
+- **Code :** Kotlin, style officiel. Identifiants en anglais, commentaires et documentation en français.
 
 ## 7. Décisions
 
 | ID | Date | Décision | Décidé par |
 |----|------|----------|------------|
 | D-001 | 2026-11-24 | Coordination via `COMMUNICATION.md`, `TASKS.md`, `PROJECT.md` et `CHANGELOG.md` | eies37 |
+| D-002 | 2026-11-24 | Plateforme : Android TV / Google TV, application native Kotlin (Compose for TV + Media3) | eies37 |
+| D-003 | 2026-11-24 | Contenu v1 : direct, vidéo à la demande et listes M3U. Architecture modulaire (modules Gradle, sources déclarées dans `sources.json`) | eies37 |
+| D-004 | 2026-11-24 | Pas de backend en v1 : sources configurables, stockage local. À revoir avec Q3 | Claude (provisoire, en attente d'eies37) |
 
 ## 8. Questions ouvertes
 
-Voir `COMMUNICATION.md` (Q1 à Q5).
+Voir `COMMUNICATION.md`. Restent ouvertes : Q3 (backend), Q4 et Q5 (ChatGPT).

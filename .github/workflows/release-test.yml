@@ -1,0 +1,37 @@
+name: APK de test publié
+
+# Publie un APK de test téléchargeable directement depuis la TV
+# quand on pousse une étiquette, par exemple : git tag v0.1.0-test1 && git push origin v0.1.0-test1
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Tests et APK
+        run: ./gradlew --stacktrace test assembleDebug
+
+      - name: Publier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk lionne-tv.apk
+          gh release create "$GITHUB_REF_NAME" lionne-tv.apk \
+            --prerelease \
+            --title "Lionne TV $GITHUB_REF_NAME (test)" \
+            --notes "APK de test (debug, non signé pour le Play Store). Sur la TV, avec l'application Downloader : https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/lionne-tv.apk"
