@@ -63,4 +63,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Images (logos, affiches) : chargement réseau et cache disque borné.
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }
