@@ -1,0 +1,17 @@
+{
+  "sources": [
+    {
+      "type": "json",
+      "id": "demo",
+      "name": "Démo Lionne TV",
+      "location": "asset://catalog-demo.json"
+    },
+    {
+      "type": "m3u",
+      "id": "liste-perso",
+      "name": "Ma liste IPTV",
+      "location": "https://exemple.invalid/ma-liste.m3u",
+      "enabled": false
+    }
+  ]
+}
