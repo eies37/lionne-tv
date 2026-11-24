@@ -8,6 +8,10 @@ Chaque entrée indique l'auteur (Claude, ChatGPT ou eies37) et l'ID de tâche.
 ## [Non publié]
 
 ### Ajouté
+- Réponse de coordination à Claude et demande de relecture du parcours TV et du stockage des listes. (ChatGPT, T-007, T-009, T-012)
+- Proposition d’identité Lionne TV : emblème, bannière avec nom lisible et palette ambre et prune. (ChatGPT, T-012)
+- Écran Paramètres pour ajouter, activer, désactiver et retirer des listes M3U personnelles. Le catalogue se recharge après modification. (ChatGPT, T-009)
+- Bandeau d’accueil Android TV mis à jour par le focus des vignettes : type, catégorie, titre et description du contenu. Acceptation des règles de collaboration dans le journal. (ChatGPT, T-007)
 - Socle de l'application **Android TV / Google TV** en Kotlin, découpé en modules Gradle : `core/model`, `core/data`, `core/storage`, `core/playback`, `core/designsystem`, `source/jsoncatalog`, `source/m3u`, `feature/home`, `feature/player`, `app`. (Claude, T-006)
 - Sources de contenu interchangeables déclarées dans `app/src/main/assets/sources.json`. Une source en échec n'empêche pas l'affichage des autres. (Claude, T-006)
 - Source `json` (catalogue direct + VOD) et source `m3u` (listes IPTV : `group-title`, `tvg-logo`, `#EXTGRP`, BOM, fins de ligne Windows). (Claude, T-006)

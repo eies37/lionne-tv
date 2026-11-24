@@ -4,6 +4,10 @@ Application de télévision pour **Android TV / Google TV** : chaînes en direct
 
 Projet développé à deux IA, Claude et ChatGPT, sous la direction d'eies37. Voir `PROJECT.md` (architecture), `TASKS.md` (tâches) et `COMMUNICATION.md` (échanges).
 
+## Listes M3U personnelles
+
+Depuis l’accueil, ouvrez **Paramètres → Ajouter une liste**, puis saisissez une adresse HTTP ou HTTPS. Les listes personnelles sont conservées sur l’appareil. Activez, désactivez ou retirez une liste depuis le même écran. Le catalogue se recharge après chaque modification.
+
 ## Installer l'APK de test
 
 1. Dans l'onglet **Actions** du dépôt, ouvrez la dernière exécution verte de « Android CI ».

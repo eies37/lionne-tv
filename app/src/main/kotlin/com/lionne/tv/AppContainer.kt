@@ -10,6 +10,7 @@ import com.lionne.tv.core.data.SourceRegistry
 import com.lionne.tv.core.data.SourcesConfig
 import com.lionne.tv.core.data.TextLoader
 import com.lionne.tv.core.storage.PreferencesFavoritesStore
+import com.lionne.tv.core.storage.PreferencesUserPlaylistStore
 import com.lionne.tv.core.storage.PreferencesPlaybackPositionStore
 import com.lionne.tv.source.jsoncatalog.JsonCatalogSourceFactory
 import com.lionne.tv.source.m3u.M3uSourceFactory
@@ -43,10 +44,14 @@ class AppContainer(context: Context) {
     val favorites: FavoritesStore = PreferencesFavoritesStore(appContext)
     val positions: PlaybackPositionStore = PreferencesPlaybackPositionStore(appContext)
 
+    val userPlaylists = PreferencesUserPlaylistStore(appContext)
+
     /** Sources déclarées dans `assets/sources.json`. */
     val catalog: CatalogRepository by lazy {
         val config = appContext.assets.open(SOURCES_FILE).bufferedReader().use { SourcesConfig.parse(it.readText()) }
-        CatalogRepository(sourceRegistry.create(config, textLoader))
+        CatalogRepository {
+            sourceRegistry.create(SourcesConfig(config.sources + userPlaylists.read()), textLoader)
+        }
     }
 
     private companion object {

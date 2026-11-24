@@ -2,6 +2,7 @@ package com.lionne.tv
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +16,7 @@ import com.lionne.tv.core.designsystem.LionneTheme
 import com.lionne.tv.feature.home.HomeScreen
 import com.lionne.tv.feature.home.HomeViewModel
 import com.lionne.tv.feature.player.PlayerScreen
+import com.lionne.tv.feature.settings.SettingsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,13 +34,24 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun LionneNavigation(container: AppContainer) {
     var playingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var settingsOpen by rememberSaveable { mutableStateOf(false) }
     val homeViewModel = viewModel { HomeViewModel(container.catalog, container.favorites) }
     val snapshot by container.catalog.snapshot.collectAsStateWithLifecycle()
+
+    BackHandler(enabled = settingsOpen) { settingsOpen = false }
+    if (settingsOpen) {
+        SettingsScreen(
+            store = container.userPlaylists,
+            onChanged = homeViewModel::refresh,
+            onBack = { settingsOpen = false },
+        )
+        return
+    }
 
     val id = playingId
     val entry = id?.let { snapshot?.find(it) }
     if (id == null || entry == null) {
-        HomeScreen(viewModel = homeViewModel, onPlay = { playingId = it.id })
+        HomeScreen(viewModel = homeViewModel, onPlay = { playingId = it.id }, onSettings = { settingsOpen = true })
         if (id != null && snapshot != null) {
             // Contenu disparu du catalogue (source retirée) : retour à l'accueil.
             LaunchedEffect(id) { playingId = null }

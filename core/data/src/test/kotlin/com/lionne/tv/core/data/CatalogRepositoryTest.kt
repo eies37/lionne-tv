@@ -42,6 +42,20 @@ class CatalogRepositoryTest {
     }
 
     @Test
+    fun `un rafraichissement relit les sources actives`() = runBlocking {
+        val bundled = FakeSource("bundled", listOf(entry("a")))
+        val personal = FakeSource("personal", listOf(entry("b")))
+        var active = listOf(bundled)
+        val repository = CatalogRepository { active }
+
+        assertEquals(listOf("a"), repository.refresh().entries.map { it.id })
+        active = listOf(bundled, personal)
+        assertEquals(listOf("a", "b"), repository.refresh().entries.map { it.id })
+        active = listOf(bundled)
+        assertEquals(listOf("a"), repository.refresh().entries.map { it.id })
+    }
+
+    @Test
     fun `les doublons d'identifiant sont ignores`() = runBlocking {
         val repository = CatalogRepository(
             listOf(FakeSource("1", listOf(entry("a"))), FakeSource("2", listOf(entry("a"), entry("c")))),

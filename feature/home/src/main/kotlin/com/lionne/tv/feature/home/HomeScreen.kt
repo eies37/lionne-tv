@@ -1,15 +1,19 @@
 package com.lionne.tv.feature.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -25,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.tv.material3.Button
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.lionne.tv.core.data.SourceFailure
@@ -35,15 +41,11 @@ import com.lionne.tv.core.designsystem.MediaCard
 import com.lionne.tv.core.model.ContentType
 import com.lionne.tv.core.model.MediaEntry
 
-/**
- * Accueil provisoire : rangées horizontales navigables à la télécommande.
- * Appui long sur OK pour ajouter ou retirer un favori.
- * Conception finale de l'interface : tâche T-007 (ChatGPT).
- */
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
     onPlay: (MediaEntry) -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -62,6 +64,7 @@ fun HomeScreen(
                 state = current,
                 viewModel = viewModel,
                 onPlay = onPlay,
+                onSettings = onSettings,
             )
         }
     }
@@ -72,8 +75,10 @@ private fun HomeContent(
     state: HomeUiState.Ready,
     viewModel: HomeViewModel,
     onPlay: (MediaEntry) -> Unit,
+    onSettings: () -> Unit,
 ) {
     val brand = LocalBrand.current
+    var focusedEntry by remember { mutableStateOf<MediaEntry?>(null) }
     val focusTarget = remember { FocusRequester() }
     var targetFocused by remember { mutableStateOf(false) }
     val listState = rememberLazyListState(viewModel.scrollIndex, viewModel.scrollOffset)
@@ -90,26 +95,53 @@ private fun HomeContent(
         }
     }
 
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 48.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(brand.appName, style = MaterialTheme.typography.titleLarge, color = brand.primary)
+            Button(onClick = onSettings) { Text("Paramètres") }
+        }
+        if (targetId != null) {
+            val preview = focusedEntry ?: state.rows.first { it.key == targetRowKey }
+                .items.first { it.entry.id == targetId }.entry
+            SelectionPreview(preview)
+        }
+        CatalogRows(state, listState, targetId, targetRowKey, focusTarget, viewModel, onPlay) { entry, isTarget ->
+            focusedEntry = entry
+            if (isTarget) targetFocused = true
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (targetId == null) return@LaunchedEffect
+        repeat(FOCUS_ATTEMPTS) {
+            withFrameNanos { }
+            if (targetFocused) return@LaunchedEffect
+            runCatching { focusTarget.requestFocus() }
+        }
+    }
+}
+
+@Composable
+private fun CatalogRows(
+    state: HomeUiState.Ready,
+    listState: LazyListState,
+    targetId: String?,
+    targetRowKey: String?,
+    focusTarget: FocusRequester,
+    viewModel: HomeViewModel,
+    onPlay: (MediaEntry) -> Unit,
+    onFocused: (MediaEntry, Boolean) -> Unit,
+) {
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 48.dp, vertical = 27.dp),
+        contentPadding = PaddingValues(horizontal = 48.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        item(key = "header") {
-            Column {
-                Text(
-                    text = brand.appName,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = brand.primary,
-                )
-                Text(
-                    text = "Appui long sur OK : ajouter ou retirer des favoris",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = brand.onSurfaceMuted,
-                )
-            }
-        }
         if (state.failures.isNotEmpty()) {
             item(key = "failures") { FailuresBanner(state.failures) }
         }
@@ -138,14 +170,10 @@ private fun HomeContent(
                     contentPadding = PaddingValues(vertical = 8.dp),
                 ) {
                     items(row.items, key = { item -> item.entry.id }) { item ->
-                        val focusModifier =
-                            if (isTargetRow && item.entry.id == targetId) {
-                                Modifier
-                                    .focusRequester(focusTarget)
-                                    .onFocusChanged { targetFocused = it.isFocused }
-                            } else {
-                                Modifier
-                            }
+                        val isFocusTarget = isTargetRow && item.entry.id == targetId
+                        val focusModifier = Modifier.onFocusChanged {
+                            if (it.isFocused) onFocused(item.entry, isFocusTarget)
+                        }.then(if (isFocusTarget) Modifier.focusRequester(focusTarget) else Modifier)
                         MediaCard(
                             title = item.entry.title,
                             subtitle = item.entry.description ?: item.entry.category,
@@ -168,14 +196,42 @@ private fun HomeContent(
         }
     }
 
-    // Une seule fois par affichage de l'accueil : ne pas voler le focus quand on ajoute un favori.
-    LaunchedEffect(Unit) {
-        if (targetId == null) return@LaunchedEffect
-        // Les vignettes n'existent qu'après la première mise en page : on réessaie quelques images.
-        repeat(FOCUS_ATTEMPTS) {
-            withFrameNanos { }
-            if (targetFocused) return@LaunchedEffect
-            runCatching { focusTarget.requestFocus() }
+}
+
+@Composable
+private fun SelectionPreview(entry: MediaEntry) {
+    val brand = LocalBrand.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 48.dp)
+            .height(132.dp)
+            .background(brand.surface, RoundedCornerShape(14.dp))
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        val type = if (entry.type == ContentType.LIVE) "En direct" else "À la demande"
+        Text(
+            text = "$type · ${entry.category}",
+            style = MaterialTheme.typography.labelMedium,
+            color = brand.accent,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = entry.title,
+            style = MaterialTheme.typography.headlineMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        entry.description?.takeIf { it.isNotBlank() }?.let { description ->
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = brand.onSurfaceMuted,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
