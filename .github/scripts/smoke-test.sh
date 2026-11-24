@@ -13,8 +13,9 @@ ko()   { echo "❌ $*"; fail=1; }
 info() { echo "ℹ️  $*"; }
 
 dump_ui() { # $1 = nom du fichier
+  adb shell rm -f /sdcard/ui.xml
   for _ in 1 2 3; do
-    if adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; then
+    if adb shell uiautomator dump /sdcard/ui.xml 2>&1 | tee -a "$OUT/uiautomator.log" | grep -q "dumped to"; then
       adb shell cat /sdcard/ui.xml > "$OUT/$1"
       return 0
     fi
@@ -30,6 +31,8 @@ expect() { # $1 = fichier, $2 = texte attendu, $3 = étape
   else
     ko "$3 : « $2 » absent. Textes à l'écran :"
     grep -o 'text="[^"]\+"' "$OUT/$1" | sort -u | head -20 | sed 's/^/      /'
+    echo "      --- début du fichier $1 ---"
+    head -c 1500 "$OUT/$1" | sed 's/></>\n</g' | grep -o '\(class\|text\|resource-id\|content-desc\)="[^"]*"' | head -40 | sed 's/^/      /'
   fi
 }
 
