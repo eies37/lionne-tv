@@ -71,13 +71,13 @@ class AppContainer(context: Context) {
      * et ceux annoncés par les listes M3U (`url-tvg`), relus à chaque actualisation.
      */
     val guide: GuideRepository by lazy {
-        GuideRepository {
+        GuideRepository(sources = {
             val declared = config.guides.filter { it.enabled }.map { it.location }.toSet()
             val announced = catalog.snapshot.value?.guideLocations.orEmpty()
                 .filterNot { it in declared }
                 .mapIndexed { index, url -> SourceDescriptor(XmltvGuideFactory.TYPE, "m3u-guide-$index", "Guide de la liste", url) }
             guideRegistry.create(config.guides + announced, textLoader)
-        }
+        })
     }
 
     private companion object {
