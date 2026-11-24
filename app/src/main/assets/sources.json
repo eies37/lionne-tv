@@ -13,5 +13,14 @@
       "location": "https://exemple.invalid/ma-liste.m3u",
       "enabled": false
     }
+  ],
+  "guides": [
+    {
+      "type": "xmltv",
+      "id": "guide-perso",
+      "name": "Guide des programmes",
+      "location": "https://exemple.invalid/guide.xml.gz",
+      "enabled": false
+    }
   ]
 }

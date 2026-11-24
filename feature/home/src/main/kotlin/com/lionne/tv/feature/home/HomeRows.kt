@@ -4,7 +4,8 @@ import com.lionne.tv.core.data.CatalogSnapshot
 import com.lionne.tv.core.model.ContentType
 import com.lionne.tv.core.model.MediaEntry
 
-data class HomeItem(val entry: MediaEntry, val isFavorite: Boolean)
+/** [nowPlaying] : titre de l'émission en cours (guide des programmes), si connu. */
+data class HomeItem(val entry: MediaEntry, val isFavorite: Boolean, val nowPlaying: String? = null)
 
 data class HomeRow(val key: String, val title: String, val items: List<HomeItem>)
 
@@ -12,8 +13,12 @@ data class HomeRow(val key: String, val title: String, val items: List<HomeItem>
  * Construit les rangées de l'accueil : favoris, puis le direct par catégorie,
  * puis la vidéo à la demande par catégorie.
  */
-fun buildHomeRows(snapshot: CatalogSnapshot, favoriteIds: Set<String>): List<HomeRow> {
-    fun item(entry: MediaEntry) = HomeItem(entry, entry.id in favoriteIds)
+fun buildHomeRows(
+    snapshot: CatalogSnapshot,
+    favoriteIds: Set<String>,
+    nowPlaying: (MediaEntry) -> String? = { null },
+): List<HomeRow> {
+    fun item(entry: MediaEntry) = HomeItem(entry, entry.id in favoriteIds, nowPlaying(entry))
 
     val rows = mutableListOf<HomeRow>()
     val favorites = snapshot.entries.filter { it.id in favoriteIds }

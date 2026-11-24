@@ -29,6 +29,7 @@ include(":core:designsystem") // Android : thème, marque, composants TV
 // Sources de contenu interchangeables : un module par format.
 include(":source:jsoncatalog") // catalogue JSON (direct + VOD)
 include(":source:m3u")         // listes IPTV M3U / M3U8
+include(":source:xmltv")       // guide des programmes XMLTV
 
 // Écrans.
 include(":feature:home")

@@ -26,6 +26,7 @@ class M3uParserTest {
         assertEquals("Lionne Info, 24h/24", info.title)
         assertEquals("Info, actualités", info.category)
         assertEquals("https://x/logo.png", info.logoUrl)
+        assertEquals("info.fr", info.epgId)
         assertEquals(ContentType.LIVE, info.type)
         assertEquals("liste", info.sourceId)
         assertEquals(true, info.id.startsWith("liste:info.fr@"))

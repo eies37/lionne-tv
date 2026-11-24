@@ -34,6 +34,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.ui.PlayerView
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.lionne.tv.core.data.NowNext
 import com.lionne.tv.core.data.PlaybackPositionStore
 import com.lionne.tv.core.data.ResumePolicy
 import com.lionne.tv.core.data.TimeFormat
@@ -43,6 +44,9 @@ import com.lionne.tv.core.model.ContentType
 import com.lionne.tv.core.model.MediaEntry
 import com.lionne.tv.core.playback.LionnePlayer
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Lecture plein écran.
@@ -55,6 +59,7 @@ fun PlayerScreen(
     liveChannels: List<MediaEntry>,
     positions: PlaybackPositionStore,
     onBack: () -> Unit,
+    nowNext: (MediaEntry) -> NowNext? = { null },
 ) {
     val context = LocalContext.current
     val lionnePlayer = remember { LionnePlayer(context) }
@@ -156,6 +161,7 @@ fun PlayerScreen(
         if (overlayVisible || message != null) {
             InfoOverlay(
                 entry = current,
+                guide = remember(current.id, overlayRequest) { nowNext(current) },
                 progress = progress,
                 error = message,
                 showZapHint = current.type == ContentType.LIVE && liveChannels.size > 1,
@@ -172,6 +178,7 @@ fun PlayerScreen(
 @Composable
 private fun InfoOverlay(
     entry: MediaEntry,
+    guide: NowNext?,
     progress: String?,
     error: String?,
     showZapHint: Boolean,
@@ -190,6 +197,22 @@ private fun InfoOverlay(
             color = brand.primary,
         )
         Text(text = entry.title, style = MaterialTheme.typography.headlineSmall, color = Color.White)
+        guide?.now?.let { now ->
+            Text(
+                text = "Maintenant · ${hhmm(now.startMs)}–${hhmm(now.endMs)} · ${now.title}",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                maxLines = 1,
+            )
+        }
+        guide?.next?.let { next ->
+            Text(
+                text = "Ensuite · ${hhmm(next.startMs)} · ${next.title}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = brand.onSurfaceMuted,
+                maxLines = 1,
+            )
+        }
         entry.description?.let {
             Text(text = it, style = MaterialTheme.typography.bodyMedium, color = brand.onSurfaceMuted, maxLines = 2)
         }
@@ -240,6 +263,10 @@ private fun handleVodKey(key: Key, player: LionnePlayer): Boolean =
         Key.DirectionUp, Key.DirectionDown -> true
         else -> false
     }
+
+/** Heure locale de la TV, format 24 h. */
+private fun hhmm(epochMs: Long): String =
+    SimpleDateFormat("HH:mm", Locale.FRANCE).format(Date(epochMs))
 
 private const val OVERLAY_DURATION_MS = 4_000L
 private const val SEEK_STEP_MS = 10_000L

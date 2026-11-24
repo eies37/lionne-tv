@@ -3,6 +3,8 @@ package com.lionne.tv.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lionne.tv.core.data.CatalogRepository
+import com.lionne.tv.core.data.CatalogSnapshot
+import com.lionne.tv.core.data.GuideRepository
 import com.lionne.tv.core.data.FavoritesStore
 import com.lionne.tv.core.data.SourceFailure
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +20,7 @@ sealed interface HomeUiState {
 class HomeViewModel(
     private val repository: CatalogRepository,
     private val favorites: FavoritesStore,
+    private val guide: GuideRepository? = null,
 ) : ViewModel() {
 
     /**
@@ -40,6 +43,8 @@ class HomeViewModel(
     private val _state = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val state: StateFlow<HomeUiState> = _state.asStateFlow()
 
+    private var guideFailures: List<SourceFailure> = emptyList()
+
     init {
         refresh()
     }
@@ -48,13 +53,30 @@ class HomeViewModel(
         viewModelScope.launch {
             _state.value = HomeUiState.Loading
             val snapshot = repository.refresh()
-            _state.value = HomeUiState.Ready(buildHomeRows(snapshot, favorites.ids()), snapshot.failures)
+            publish(snapshot)
+            // Le guide arrive ensuite, sans retarder l'affichage des chaînes.
+            if (guide != null) {
+                guideFailures = guide.refresh()
+                publish(snapshot)
+            }
         }
     }
 
     fun toggleFavorite(id: String) {
         favorites.toggle(id)
-        val snapshot = repository.snapshot.value ?: return
-        _state.value = HomeUiState.Ready(buildHomeRows(snapshot, favorites.ids()), snapshot.failures)
+        repository.snapshot.value?.let(::publish)
+    }
+
+    /** Remet à jour « en ce moment » (à appeler au retour sur l'accueil). */
+    fun refreshNowPlaying() {
+        if (guide == null || guide.isEmpty) return
+        repository.snapshot.value?.let(::publish)
+    }
+
+    private fun publish(snapshot: CatalogSnapshot) {
+        val rows = buildHomeRows(snapshot, favorites.ids()) { entry ->
+            guide?.nowNext(entry.epgId)?.now?.title
+        }
+        _state.value = HomeUiState.Ready(rows, snapshot.failures + guideFailures)
     }
 }

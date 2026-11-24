@@ -148,7 +148,7 @@ private fun HomeContent(
                             }
                         MediaCard(
                             title = item.entry.title,
-                            subtitle = item.entry.description ?: item.entry.category,
+                            subtitle = item.nowPlaying ?: item.entry.description ?: item.entry.category,
                             badge = if (item.entry.type == ContentType.LIVE) "DIRECT" else null,
                             isFavorite = item.isFavorite,
                             onClick = {
@@ -171,6 +171,7 @@ private fun HomeContent(
 
     // Une seule fois par affichage de l'accueil : ne pas voler le focus quand on ajoute un favori.
     LaunchedEffect(Unit) {
+        viewModel.refreshNowPlaying()
         if (targetId == null) return@LaunchedEffect
         // Les vignettes n'existent qu'après la première mise en page : on réessaie quelques images.
         repeat(FOCUS_ATTEMPTS) {

@@ -21,7 +21,11 @@ data class SourceDescriptor(
 )
 
 @Serializable
-data class SourcesConfig(val sources: List<SourceDescriptor> = emptyList()) {
+data class SourcesConfig(
+    val sources: List<SourceDescriptor> = emptyList(),
+    /** Guides des programmes (XMLTV…), même format que les sources. */
+    val guides: List<SourceDescriptor> = emptyList(),
+) {
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
 
