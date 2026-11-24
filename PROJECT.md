@@ -23,7 +23,7 @@ Décision d'eies37 (2026-11-24) : la première version couvre **tous les types d
 | Favoris (appui long sur OK) | MVP | Fait (T-006) |
 | Interface 10-foot définitive | MVP | À faire (T-007, ChatGPT) |
 | Logos et affiches | MVP | Fait (T-010) |
-| Guide des programmes (EPG, XMLTV) | Plus tard | À faire (T-011) |
+| Guide des programmes (EPG, XMLTV) | MVP | Fait (T-011) |
 | Recherche | Plus tard | À planifier |
 | Comptes / profils / backend | Plus tard | **[À CONFIRMER]** (Q3) |
 | Contrôle parental | Plus tard | **[À CONFIRMER]** |
@@ -53,6 +53,7 @@ app/                    Assemblage : branche les modules entre eux (AppContainer
 │
 ├── source/jsoncatalog  Source « json » : catalogue Lionne TV
 ├── source/m3u          Source « m3u » : listes IPTV
+├── source/xmltv        Guide « xmltv » : programmes en cours et suivants
 │
 ├── core/designsystem   Thème, marque (BrandConfig), composants TV
 ├── core/playback       LionnePlayer : seule porte d'entrée vers Media3
@@ -87,6 +88,8 @@ app/                    Assemblage : branche les modules entre eux (AppContainer
 ```
 
 `location` accepte `asset://` (fichier embarqué), `http://` et `https://`.
+
+Une section `guides` (même format, type `xmltv`) déclare les guides des programmes. Les chaînes y sont reliées par leur `tvg-id` (M3U) ou leur `epgId` (JSON). Une liste M3U qui annonce son guide (`url-tvg`) n'a pas besoin d'être déclarée ici.
 
 ### Format du catalogue JSON
 

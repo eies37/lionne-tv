@@ -26,6 +26,7 @@ class M3uParserTest {
         assertEquals("Lionne Info, 24h/24", info.title)
         assertEquals("Info, actualités", info.category)
         assertEquals("https://x/logo.png", info.logoUrl)
+        assertEquals("info.fr", info.epgId)
         assertEquals(ContentType.LIVE, info.type)
         assertEquals("liste", info.sourceId)
         assertEquals(true, info.id.startsWith("liste:info.fr@"))
@@ -57,5 +58,13 @@ class M3uParserTest {
     fun `identifiants stables d'un chargement a l'autre`() {
         val text = "#EXTM3U\n#EXTINF:-1,A\nhttps://x/a.m3u8\n"
         assertEquals(M3uParser.parse(text, "l").single().id, M3uParser.parse(text, "l").single().id)
+    }
+
+    @Test
+    fun `guides annonces dans l'en-tete`() {
+        val text = "#EXTM3U url-tvg=\"https://x/a.xml.gz, https://x/b.xml\" x-tvg-url=\"https://x/a.xml.gz\" tvg-shift=\"1\"\n" +
+            "#EXTINF:-1,A\nhttps://x/a.m3u8\n"
+        assertEquals(listOf("https://x/a.xml.gz", "https://x/b.xml"), M3uParser.guideLocations(text))
+        assertEquals(emptyList<String>(), M3uParser.guideLocations("#EXTINF:-1,A\nhttps://x/a.m3u8"))
     }
 }

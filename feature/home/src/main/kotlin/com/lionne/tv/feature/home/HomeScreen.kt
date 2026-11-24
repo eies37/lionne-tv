@@ -116,6 +116,7 @@ private fun HomeContent(
     }
 
     LaunchedEffect(Unit) {
+        viewModel.refreshNowPlaying()
         if (targetId == null) return@LaunchedEffect
         repeat(FOCUS_ATTEMPTS) {
             withFrameNanos { }
@@ -176,7 +177,7 @@ private fun CatalogRows(
                         }.then(if (isFocusTarget) Modifier.focusRequester(focusTarget) else Modifier)
                         MediaCard(
                             title = item.entry.title,
-                            subtitle = item.entry.description ?: item.entry.category,
+                            subtitle = item.nowPlaying ?: item.entry.description ?: item.entry.category,
                             badge = if (item.entry.type == ContentType.LIVE) "DIRECT" else null,
                             isFavorite = item.isFavorite,
                             onClick = {

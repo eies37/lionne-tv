@@ -4,8 +4,11 @@ import android.content.Context
 import com.lionne.tv.core.data.CatalogRepository
 import com.lionne.tv.core.data.CompositeTextLoader
 import com.lionne.tv.core.data.FavoritesStore
+import com.lionne.tv.core.data.GuideRegistry
+import com.lionne.tv.core.data.GuideRepository
 import com.lionne.tv.core.data.HttpTextLoader
 import com.lionne.tv.core.data.PlaybackPositionStore
+import com.lionne.tv.core.data.SourceDescriptor
 import com.lionne.tv.core.data.SourceRegistry
 import com.lionne.tv.core.data.SourcesConfig
 import com.lionne.tv.core.data.TextLoader
@@ -14,6 +17,7 @@ import com.lionne.tv.core.storage.PreferencesUserPlaylistStore
 import com.lionne.tv.core.storage.PreferencesPlaybackPositionStore
 import com.lionne.tv.source.jsoncatalog.JsonCatalogSourceFactory
 import com.lionne.tv.source.m3u.M3uSourceFactory
+import com.lionne.tv.source.xmltv.XmltvGuideFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -46,12 +50,34 @@ class AppContainer(context: Context) {
 
     val userPlaylists = PreferencesUserPlaylistStore(appContext)
 
-    /** Sources déclarées dans `assets/sources.json`. */
+    /** Formats de guide des programmes installés. */
+    private val guideRegistry = GuideRegistry(
+        mapOf(XmltvGuideFactory.TYPE to XmltvGuideFactory),
+    )
+
+    private val config: SourcesConfig by lazy {
+        appContext.assets.open(SOURCES_FILE).bufferedReader().use { SourcesConfig.parse(it.readText()) }
+    }
+
+    /** Sources de `assets/sources.json` + listes personnelles ajoutées dans les Paramètres. */
     val catalog: CatalogRepository by lazy {
-        val config = appContext.assets.open(SOURCES_FILE).bufferedReader().use { SourcesConfig.parse(it.readText()) }
         CatalogRepository {
             sourceRegistry.create(SourcesConfig(config.sources + userPlaylists.read()), textLoader)
         }
+    }
+
+    /**
+     * Guides des programmes : ceux de `assets/sources.json` (section `guides`)
+     * et ceux annoncés par les listes M3U (`url-tvg`), relus à chaque actualisation.
+     */
+    val guide: GuideRepository by lazy {
+        GuideRepository(sources = {
+            val declared = config.guides.filter { it.enabled }.map { it.location }.toSet()
+            val announced = catalog.snapshot.value?.guideLocations.orEmpty()
+                .filterNot { it in declared }
+                .mapIndexed { index, url -> SourceDescriptor(XmltvGuideFactory.TYPE, "m3u-guide-$index", "Guide de la liste", url) }
+            guideRegistry.create(config.guides + announced, textLoader)
+        })
     }
 
     private companion object {

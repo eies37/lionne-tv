@@ -41,12 +41,21 @@ class HttpTextLoader(
             if (code !in 200..299) throw IOException("HTTP $code")
             connection.inputStream.use { input ->
                 val bytes = input.readNBytesCompat(maxBytes)
-                String(bytes, Charsets.UTF_8)
+                String(bytes.gunzipIfNeeded(maxBytes * GZIP_RATIO), Charsets.UTF_8)
             }
         } finally {
             connection.disconnect()
         }
     }
+}
+
+private const val GZIP_RATIO = 5
+
+/** Les guides XMLTV sont souvent servis compressés (`.xml.gz`). */
+internal fun ByteArray.gunzipIfNeeded(limit: Int): ByteArray {
+    val isGzip = size >= 2 && this[0] == 0x1f.toByte() && this[1] == 0x8b.toByte()
+    if (!isGzip) return this
+    return java.util.zip.GZIPInputStream(inputStream()).use { it.readNBytesCompat(limit) }
 }
 
 private fun java.io.InputStream.readNBytesCompat(limit: Int): ByteArray {

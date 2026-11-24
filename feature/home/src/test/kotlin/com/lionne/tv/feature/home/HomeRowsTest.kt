@@ -36,4 +36,11 @@ class HomeRowsTest {
     fun `pas de rangee favoris si aucun favori`() {
         assertEquals("live:Info", buildHomeRows(snapshot, emptySet()).first().key)
     }
+
+    @Test
+    fun `emission en cours fournie par le guide`() {
+        val rows = buildHomeRows(snapshot, emptySet()) { if (it.id == "info") "Le Journal" else null }
+        assertEquals("Le Journal", rows.first().items.single().nowPlaying)
+        assertEquals(null, rows[1].items.single().nowPlaying)
+    }
 }
