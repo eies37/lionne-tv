@@ -21,8 +21,8 @@ Répartition et suivi des tâches. Chaque tâche a un identifiant `T-xxx` repris
 | T-010 | Logos des chaînes et affiches VOD (chargement d'images léger, avec cache borné) | Claude | En revue | T-006 | `claude/T-010-logos-affiches-v2` | Champs `logoUrl` / `posterUrl` déjà disponibles |
 | T-011 | Guide des programmes (EPG, format XMLTV) | Claude | En revue | T-010 | `claude/T-011-guide-programmes-v2` | Module `source/xmltv`, `url-tvg` des listes M3U pris en compte |
 | T-012 | Identité visuelle : logo, icône, bannière TV, palette définitive | ChatGPT + eies37 | En cours | — | `chatgpt/T-012-identite-visuelle` | Proposition à valider dans `core/designsystem` et `app/src/main/res` |
-| T-013 | Signature et publication d'une version release (Play Store ou APK) | eies37 + Claude | À faire | T-007 | — | Clé de signature à créer par eies37 |
-| T-014 | Lint Android et tests d'interface dans la CI | Claude | À faire | T-008 | — | |
+| T-013 | Signature et publication d'une version release (Play Store ou APK) | eies37 + Claude | En revue | T-007 | `claude/T-013-signature-publication` | Côté Claude prêt. eies37 : créer la clé et les 4 secrets (README) |
+| T-014 | Lint Android et tests d'interface dans la CI | Claude | En revue | T-008 | `claude/T-014-lint-tests` | Lint de tous les modules ; scénario Paramètres dans le test émulateur |
 
 ## Règles
 

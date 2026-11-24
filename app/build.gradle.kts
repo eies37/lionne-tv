@@ -18,8 +18,22 @@ android {
         versionName = "0.1.0"
     }
 
+    // Signature release : activée seulement si la clé est fournie (secrets GitHub ou variables locales).
+    val keystoreFile = System.getenv("LIONNE_KEYSTORE_FILE")
+    if (keystoreFile != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystoreFile)
+                storePassword = System.getenv("LIONNE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("LIONNE_KEY_ALIAS")
+                keyPassword = System.getenv("LIONNE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (keystoreFile != null) signingConfig = signingConfigs.getByName("release")
             // Application la plus légère possible : les TV ont peu de stockage.
             isMinifyEnabled = true
             isShrinkResources = true
