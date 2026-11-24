@@ -38,7 +38,6 @@ dump_ui home.xml
 expect home.xml "Lionne TV" "Accueil"
 expect home.xml "En direct · Tests" "Accueil"
 expect home.xml "Direct de test HLS" "Accueil"
-expect home.xml "Big Buck Bunny" "Accueil"
 adb shell screencap -p /sdcard/home.png && adb pull /sdcard/home.png "$OUT/home.png" >/dev/null
 
 # 2. OK sur la première vignette (focus initial) : lecture du direct
@@ -68,9 +67,30 @@ fi
 adb shell input keyevent KEYCODE_BACK
 sleep 3
 dump_ui back.xml
-expect back.xml "Big Buck Bunny" "Retour à l'accueil"
+expect back.xml "Direct de test HLS" "Retour à l'accueil"
 
-# 6. Plantages et erreurs du lecteur
+# 6. Rangée suivante (vidéo à la demande), puis lecture d'un film
+adb shell input keyevent KEYCODE_DPAD_DOWN
+sleep 2
+dump_ui vod-row.xml
+expect vod-row.xml "Big Buck Bunny" "Rangée VOD"
+adb shell input keyevent KEYCODE_DPAD_CENTER
+sleep 2
+dump_ui vod.xml
+expect vod.xml "Big Buck Bunny" "Lecture VOD"
+expect vod.xml "Films libres" "Lecture VOD"
+sleep 15
+dump_ui vod-playing.xml
+adb shell screencap -p /sdcard/vod.png && adb pull /sdcard/vod.png "$OUT/vod.png" >/dev/null
+if grep -qF "Lecture impossible" "$OUT/vod-playing.xml"; then
+  info "Lecture VOD : erreur affichée (flux de test externe injoignable depuis la CI ?)"
+else
+  ok "Lecture VOD : aucune erreur affichée après 15 s"
+fi
+adb shell input keyevent KEYCODE_BACK
+sleep 3
+
+# 7. Plantages et erreurs du lecteur
 adb logcat -d > "$OUT/logcat.txt"
 if grep -E "FATAL EXCEPTION|has died|ANR in com.lionne.tv" "$OUT/logcat.txt"; then
   ko "Plantage détecté dans logcat"
