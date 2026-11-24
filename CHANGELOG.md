@@ -8,6 +8,7 @@ Chaque entrée indique l'auteur (Claude, ChatGPT ou eies37) et l'ID de tâche.
 ## [Non publié]
 
 ### Ajouté
+- Logos des chaînes et affiches des films sur les vignettes (Coil 3), avec initiales en secours si l'image manque ou ne charge pas. Caches bornés : 15 % de la mémoire, 32 Mo sur disque. Images de démonstration embarquées (moins de 20 Ko au total). (Claude, T-010)
 - Socle de l'application **Android TV / Google TV** en Kotlin, découpé en modules Gradle : `core/model`, `core/data`, `core/storage`, `core/playback`, `core/designsystem`, `source/jsoncatalog`, `source/m3u`, `feature/home`, `feature/player`, `app`. (Claude, T-006)
 - Sources de contenu interchangeables déclarées dans `app/src/main/assets/sources.json`. Une source en échec n'empêche pas l'affichage des autres. (Claude, T-006)
 - Source `json` (catalogue direct + VOD) et source `m3u` (listes IPTV : `group-title`, `tvg-logo`, `#EXTGRP`, BOM, fins de ligne Windows). (Claude, T-006)

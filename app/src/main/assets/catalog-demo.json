@@ -6,7 +6,8 @@
       "type": "LIVE",
       "category": "Tests",
       "description": "Flux de test public Akamai (HLS)",
-      "url": "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8"
+      "url": "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",
+      "logo": "file:///android_asset/images/logo-hls.png"
     },
     {
       "id": "test-live-unified-hls",
@@ -14,7 +15,8 @@
       "type": "LIVE",
       "category": "Tests",
       "description": "Flux de démonstration Unified Streaming (HLS)",
-      "url": "https://demo.unified-streaming.com/k8s/live/stable/live.isml/.m3u8"
+      "url": "https://demo.unified-streaming.com/k8s/live/stable/live.isml/.m3u8",
+      "logo": "file:///android_asset/images/logo-unified.png"
     },
     {
       "id": "test-live-dashif",
@@ -22,7 +24,8 @@
       "type": "LIVE",
       "category": "Tests",
       "description": "Simulateur de direct DASH-IF",
-      "url": "https://livesim2.dashif.org/livesim2/testpic_2s/Manifest.mpd"
+      "url": "https://livesim2.dashif.org/livesim2/testpic_2s/Manifest.mpd",
+      "logo": "file:///android_asset/images/logo-dash.png"
     },
     {
       "id": "big-buck-bunny",
@@ -30,7 +33,8 @@
       "type": "VOD",
       "category": "Films libres",
       "description": "Court métrage Blender (CC BY), HLS",
-      "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+      "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "poster": "file:///android_asset/images/poster-bbb.png"
     },
     {
       "id": "tears-of-steel",
@@ -38,7 +42,8 @@
       "type": "VOD",
       "category": "Films libres",
       "description": "Court métrage Blender (CC BY), HLS",
-      "url": "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"
+      "url": "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+      "poster": "file:///android_asset/images/poster-tos.png"
     },
     {
       "id": "bipbop",
@@ -46,7 +51,8 @@
       "type": "VOD",
       "category": "Tests",
       "description": "Flux de test Apple, plusieurs qualités",
-      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
+      "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
+      "poster": "file:///android_asset/images/poster-bipbop.png"
     }
   ]
 }

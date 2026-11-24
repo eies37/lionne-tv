@@ -22,7 +22,7 @@ Décision d'eies37 (2026-11-24) : la première version couvre **tous les types d
 | Listes IPTV M3U / M3U8 | MVP | Fait (T-006), ajout depuis l'écran : T-009 |
 | Favoris (appui long sur OK) | MVP | Fait (T-006) |
 | Interface 10-foot définitive | MVP | À faire (T-007, ChatGPT) |
-| Logos et affiches | MVP | À faire (T-010) |
+| Logos et affiches | MVP | Fait (T-010) |
 | Guide des programmes (EPG, XMLTV) | Plus tard | À faire (T-011) |
 | Recherche | Plus tard | À planifier |
 | Comptes / profils / backend | Plus tard | **[À CONFIRMER]** (Q3) |
@@ -94,6 +94,7 @@ app/                    Assemblage : branche les modules entre eux (AppContainer
 { "entries": [
   { "id": "info", "title": "Lionne Info", "type": "LIVE", "category": "Info",
     "url": "https://…/master.m3u8", "description": "…", "logo": "https://…", "poster": "https://…" }
+  // logo / poster acceptent aussi les images embarquées : "file:///android_asset/images/x.png"
 ] }
 ```
 

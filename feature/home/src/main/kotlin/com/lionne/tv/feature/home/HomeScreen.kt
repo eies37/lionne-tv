@@ -161,6 +161,7 @@ private fun HomeContent(
                             },
                             onLongClick = { viewModel.toggleFavorite(item.entry.id) },
                             modifier = focusModifier,
+                            imageUrl = item.entry.posterUrl ?: item.entry.logoUrl,
                         )
                     }
                 }
