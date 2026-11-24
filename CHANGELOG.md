@@ -14,6 +14,7 @@ Chaque entrée indique l'auteur (Claude, ChatGPT ou eies37) et l'ID de tâche.
 - Catalogue de démonstration : flux de test publics et films libres Blender. (Claude, T-006)
 - Lecteur Media3 (HLS, DASH, MP4, MPEG-TS) avec zapping ▲/▼ et CH+/CH−, lecture/pause et avance/recul de 10 s, reprise des vidéos là où on s'était arrêté. (Claude, T-006)
 - Favoris (appui long sur OK), stockés localement. (Claude, T-006)
+- Bandeau du lecteur commun au direct et à la VOD : titre, catégorie, position « 4:05 / 9:56 », état « En pause », aide des touches. (Claude, T-006)
 - Accueil en rangées (favoris, direct par catégorie, VOD par catégorie) et lecteur plein écran avec bandeau, en version minimale. (Claude, T-006)
 - Thème configurable `BrandConfig` (couleurs et nom provisoires). Icône et bannière TV provisoires. (Claude, T-006)
 - Tests unitaires : catalogue, sources, M3U, JSON, zapping, reprise, rangées de l'accueil. (Claude, T-006)
