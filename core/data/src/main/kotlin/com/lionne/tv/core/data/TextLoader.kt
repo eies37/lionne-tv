@@ -38,7 +38,7 @@ class HttpTextLoader(
             connection.instanceFollowRedirects = true
             connection.setRequestProperty("User-Agent", "LionneTV/0.1")
             val code = connection.responseCode
-            if (code !in 200..299) throw IOException("HTTP $code pour « $location »")
+            if (code !in 200..299) throw IOException("HTTP $code")
             connection.inputStream.use { input ->
                 val bytes = input.readNBytesCompat(maxBytes)
                 String(bytes, Charsets.UTF_8)

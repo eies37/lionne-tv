@@ -1,20 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Bannière Android TV provisoire, 320x180 dp (tâche T-012 : identité visuelle). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="320dp"
     android:height="180dp"
     android:viewportWidth="320"
     android:viewportHeight="180">
-    <path
-        android:fillColor="#FF0E0F12"
-        android:pathData="M0,0h320v180h-320z" />
-    <path
-        android:fillColor="#FFE0A526"
-        android:pathData="M90,40a50,50 0,1 1,0 100a50,50 0,1 1,0 -100z" />
-    <path
-        android:fillColor="#FF0E0F12"
-        android:pathData="M72,62h12v44h24v10h-36z" />
-    <path
-        android:fillColor="#FFE0A526"
-        android:pathData="M160,70h120v8h-120zM160,90h90v8h-90zM160,110h105v8h-105z" />
+    <path android:fillColor="#FF14121B" android:pathData="M0,0H320V180H0Z" />
+    <path android:fillColor="#FF211B2B" android:pathData="M240,0H320V180H170Z" />
+    <group android:translateX="24" android:translateY="36">
+        <path android:fillColor="#FFFFC36A" android:pathData="M22,32 L35,26 L45,34 Q54,31 63,34 L73,26 L86,32 L82,53 Q82,73 54,88 Q26,73 26,53 Z" />
+        <path android:fillColor="#FF14121B" android:pathData="M47,46 L47,69 L66,57.5 Z" />
+    </group>
+    <group android:translateX="130" android:translateY="79">
+        <path android:fillColor="#FFFFF2E0" android:pathData="M0,0H4V17H13V21H0Z" />
+    </group>
+    <group android:translateX="149" android:translateY="79">
+        <path android:fillColor="#FFFFF2E0" android:pathData="M0,0H4V21H0Z" />
+    </group>
+    <group android:translateX="159" android:translateY="79">
+        <path android:fillColor="#FFFFF2E0" android:pathData="M3,0H11L14,3V18L11,21H3L0,18V3Z M4,4V17H10V4Z" />
+    </group>
+    <group android:translateX="179" android:translateY="79">
+        <path android:fillColor="#FFFFF2E0" android:pathData="M0,0H4L11,13V0H15V21H11L4,8V21H0Z" />
+    </group>
+    <group android:translateX="200" android:translateY="79">
+        <path android:fillColor="#FFFFF2E0" android:pathData="M0,0H4L11,13V0H15V21H11L4,8V21H0Z" />
+    </group>
+    <group android:translateX="221" android:translateY="79">
+        <path android:fillColor="#FFFFF2E0" android:pathData="M0,0H13V4H4V8H12V12H4V17H13V21H0Z" />
+    </group>
+    <group android:translateX="249" android:translateY="79">
+        <path android:fillColor="#FFFFC36A" android:pathData="M0,0H15V4H9.5V21H5.5V4H0Z" />
+    </group>
+    <group android:translateX="269" android:translateY="79">
+        <path android:fillColor="#FFFFC36A" android:pathData="M0,0H4.5L8,15L11.5,0H16L10,21H6Z" />
+    </group>
 </vector>

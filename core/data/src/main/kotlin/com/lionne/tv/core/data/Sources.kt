@@ -22,6 +22,8 @@ data class SourceDescriptor(
 
 @Serializable
 data class SourcesConfig(val sources: List<SourceDescriptor> = emptyList()) {
+    fun encode(): String = json.encodeToString(serializer(), this)
+
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
 

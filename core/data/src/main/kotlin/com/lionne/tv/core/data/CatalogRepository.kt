@@ -10,6 +10,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.withLock
 
 /** Échec de chargement d'une source, affichable à l'utilisateur. */
 data class SourceFailure(val sourceId: String, val sourceName: String, val message: String)
@@ -35,12 +36,18 @@ data class CatalogSnapshot(
  * Agrège toutes les sources actives. Les sources sont chargées en parallèle et isolées :
  * une liste M3U injoignable n'empêche pas le reste du catalogue de s'afficher.
  */
-class CatalogRepository(private val sources: List<ContentSource>) {
+class CatalogRepository(private val sources: () -> List<ContentSource>) {
+    constructor(sources: List<ContentSource>) : this({ sources })
+
+    private val refreshLock = kotlinx.coroutines.sync.Mutex()
 
     private val _snapshot = MutableStateFlow<CatalogSnapshot?>(null)
     val snapshot: StateFlow<CatalogSnapshot?> = _snapshot.asStateFlow()
 
-    suspend fun refresh(): CatalogSnapshot = coroutineScope {
+    suspend fun refresh(): CatalogSnapshot = refreshLock.withLock { loadSnapshot() }
+
+    private suspend fun loadSnapshot(): CatalogSnapshot = coroutineScope {
+        val sources = sources()
         val results = sources.map { source ->
             async<Result<List<MediaEntry>>> {
                 try {

@@ -28,13 +28,13 @@ data class BrandConfig(
         /** Palette provisoire « Lionne » : or fauve sur fond nuit. À valider (tâche T-012). */
         val Lionne = BrandConfig(
             appName = "Lionne TV",
-            primary = Color(0xFFE0A526),
-            onPrimary = Color(0xFF1A1200),
-            accent = Color(0xFFFFC94D),
-            background = Color(0xFF0E0F12),
-            surface = Color(0xFF1B1D22),
-            onSurface = Color(0xFFF2EFE8),
-            onSurfaceMuted = Color(0xFFA8A49B),
+            primary = Color(0xFFFFC36A),
+            onPrimary = Color(0xFF281700),
+            accent = Color(0xFFFFD89D),
+            background = Color(0xFF14121B),
+            surface = Color(0xFF252131),
+            onSurface = Color(0xFFFFF2E0),
+            onSurfaceMuted = Color(0xFFC0B4C8),
         )
     }
 }

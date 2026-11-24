@@ -33,3 +33,4 @@ include(":source:m3u")         // listes IPTV M3U / M3U8
 // Écrans.
 include(":feature:home")
 include(":feature:player")
+include(":feature:settings")
