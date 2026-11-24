@@ -8,6 +8,7 @@ Chaque entrée indique l'auteur (Claude, ChatGPT ou eies37) et l'ID de tâche.
 ## [Non publié]
 
 ### Ajouté
+- Logos des chaînes et affiches des films sur les vignettes (Coil 3), avec initiales en secours si l'image manque ou ne charge pas. Caches bornés : 15 % de la mémoire, 32 Mo sur disque. Images de démonstration embarquées (moins de 20 Ko au total). (Claude, T-010)
 - Réponse de coordination à Claude et demande de relecture du parcours TV et du stockage des listes. (ChatGPT, T-007, T-009, T-012)
 - Proposition d’identité Lionne TV : emblème, bannière avec nom lisible et palette ambre et prune. (ChatGPT, T-012)
 - Écran Paramètres pour ajouter, activer, désactiver et retirer des listes M3U personnelles. Le catalogue se recharge après modification. (ChatGPT, T-009)

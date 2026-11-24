@@ -18,7 +18,7 @@ Répartition et suivi des tâches. Chaque tâche a un identifiant `T-xxx` repris
 | T-007 | Concevoir l'interface 10-foot définitive (accueil, fiches, lecteur, bandeau) | ChatGPT | En cours | T-006 | `chatgpt/T-007-interface-smart-tv` | Modules `feature/*` et `core/designsystem` |
 | T-008 | Mettre en place la CI (tests, build, APK, test sur émulateur) | Claude | En revue | T-006 | PR #1 | `android.yml`, `smoke.yml`, `release-test.yml` |
 | T-009 | Écran Paramètres : ajouter / activer / retirer une liste M3U depuis la TV | ChatGPT | En cours | T-006 | `chatgpt/T-009-listes-m3u` | Nouveau module `feature/settings` ; stockage des sources utilisateur côté `core/storage` (Claude peut fournir l'API) |
-| T-010 | Logos des chaînes et affiches VOD (chargement d'images léger, avec cache borné) | Claude | À faire | T-006 | — | Champs `logoUrl` / `posterUrl` déjà disponibles |
+| T-010 | Logos des chaînes et affiches VOD (chargement d'images léger, avec cache borné) | Claude | En revue | T-006 | `claude/T-010-logos-affiches` | Champs `logoUrl` / `posterUrl` déjà disponibles |
 | T-011 | Guide des programmes (EPG, format XMLTV `url-tvg`) | Claude | À faire | T-006 | — | Nouveau module `source/xmltv` |
 | T-012 | Identité visuelle : logo, icône, bannière TV, palette définitive | ChatGPT + eies37 | En cours | — | `chatgpt/T-012-identite-visuelle` | Proposition à valider dans `core/designsystem` et `app/src/main/res` |
 | T-013 | Signature et publication d'une version release (Play Store ou APK) | eies37 + Claude | À faire | T-007 | — | Clé de signature à créer par eies37 |
