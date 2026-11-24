@@ -14,7 +14,16 @@ class M3uSource(
     private val location: String,
     private val loader: TextLoader,
 ) : ContentSource {
-    override suspend fun load(): List<MediaEntry> = M3uParser.parse(loader.load(location), id)
+    @Volatile
+    private var announcedGuides: List<String> = emptyList()
+
+    override val guideLocations: List<String> get() = announcedGuides
+
+    override suspend fun load(): List<MediaEntry> {
+        val text = loader.load(location)
+        announcedGuides = M3uParser.guideLocations(text)
+        return M3uParser.parse(text, id)
+    }
 }
 
 /** Fabrique enregistrée sous le type `m3u` dans `sources.json`. */
@@ -70,6 +79,22 @@ object M3uParser {
             }
         }
         return entries
+    }
+
+    /** Guides annoncés dans l'en-tête : `#EXTM3U url-tvg="a.xml.gz,b.xml"` ou `x-tvg-url`. */
+    fun guideLocations(text: String): List<String> {
+        val header = text.removePrefix("\uFEFF").lineSequence()
+            .map { it.trim() }
+            .firstOrNull { it.isNotEmpty() }
+            ?.takeIf { it.startsWith("#EXTM3U", ignoreCase = true) }
+            ?: return emptyList()
+        return attributeRegex.findAll(header)
+            .filter { it.groupValues[1].lowercase() in setOf("url-tvg", "x-tvg-url") }
+            .flatMap { it.groupValues[2].split(',') }
+            .map { it.trim() }
+            .filter { it.startsWith("http://") || it.startsWith("https://") }
+            .distinct()
+            .toList()
     }
 
     internal data class ExtInf(val title: String, val attributes: Map<String, String>)

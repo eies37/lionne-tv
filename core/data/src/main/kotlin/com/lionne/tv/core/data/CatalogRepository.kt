@@ -19,6 +19,8 @@ data class SourceFailure(val sourceId: String, val sourceName: String, val messa
 data class CatalogSnapshot(
     val entries: List<MediaEntry>,
     val failures: List<SourceFailure> = emptyList(),
+    /** Guides annoncés par les sources (`url-tvg` des listes M3U), sans doublon. */
+    val guideLocations: List<String> = emptyList(),
 ) {
     private val byId: Map<String, MediaEntry> by lazy { entries.associateBy { it.id } }
 
@@ -75,6 +77,7 @@ class CatalogRepository(private val sources: () -> List<ContentSource>) {
                     )
                 }
         }
-        CatalogSnapshot(entries, failures).also { _snapshot.value = it }
+        val guideLocations = sources.flatMap { it.guideLocations }.distinct()
+        CatalogSnapshot(entries, failures, guideLocations).also { _snapshot.value = it }
     }
 }

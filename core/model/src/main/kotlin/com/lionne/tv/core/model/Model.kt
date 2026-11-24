@@ -53,4 +53,10 @@ interface ContentSource {
 
     /** Charge les contenus. Peut lever une exception : le catalogue l'isole des autres sources. */
     suspend fun load(): List<MediaEntry>
+
+    /**
+     * Adresses de guides des programmes annoncées par la source elle-même
+     * (par exemple `url-tvg` dans l'en-tête d'une liste M3U), connues après [load].
+     */
+    val guideLocations: List<String> get() = emptyList()
 }

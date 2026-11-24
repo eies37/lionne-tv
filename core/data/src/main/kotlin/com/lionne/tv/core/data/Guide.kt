@@ -46,9 +46,11 @@ private class UnsupportedGuide(
  * (sans tenir compte des majuscules). Un guide en échec n'empêche pas les autres de charger.
  */
 class GuideRepository(
-    private val sources: List<GuideSource>,
+    private val sources: () -> List<GuideSource>,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
+    constructor(sources: List<GuideSource>, clock: () -> Long = System::currentTimeMillis) : this({ sources }, clock)
+
     private val _programmes = MutableStateFlow<Map<String, List<Programme>>>(emptyMap())
 
     /** Programmes par identifiant de chaîne (en minuscules), triés par heure de début. */
@@ -56,7 +58,9 @@ class GuideRepository(
 
     val isEmpty: Boolean get() = _programmes.value.isEmpty()
 
+    /** Relit la liste des guides à chaque appel (les listes M3U peuvent en annoncer de nouveaux). */
     suspend fun refresh(): List<SourceFailure> = coroutineScope {
+        val sources = sources()
         val results = sources.map { source ->
             async<Result<List<Programme>>> {
                 try {

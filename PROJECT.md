@@ -89,7 +89,7 @@ app/                    Assemblage : branche les modules entre eux (AppContainer
 
 `location` accepte `asset://` (fichier embarqué), `http://` et `https://`.
 
-Une section `guides` (même format, type `xmltv`) déclare les guides des programmes. Les chaînes y sont reliées par leur `tvg-id` (M3U) ou leur `epgId` (JSON).
+Une section `guides` (même format, type `xmltv`) déclare les guides des programmes. Les chaînes y sont reliées par leur `tvg-id` (M3U) ou leur `epgId` (JSON). Une liste M3U qui annonce son guide (`url-tvg`) n'a pas besoin d'être déclarée ici.
 
 ### Format du catalogue JSON
 

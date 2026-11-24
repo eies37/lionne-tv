@@ -8,6 +8,7 @@ import com.lionne.tv.core.data.GuideRegistry
 import com.lionne.tv.core.data.GuideRepository
 import com.lionne.tv.core.data.HttpTextLoader
 import com.lionne.tv.core.data.PlaybackPositionStore
+import com.lionne.tv.core.data.SourceDescriptor
 import com.lionne.tv.core.data.SourceRegistry
 import com.lionne.tv.core.data.SourcesConfig
 import com.lionne.tv.core.data.TextLoader
@@ -65,9 +66,18 @@ class AppContainer(context: Context) {
         }
     }
 
-    /** Guides des programmes déclarés dans `assets/sources.json` (section `guides`). */
+    /**
+     * Guides des programmes : ceux de `assets/sources.json` (section `guides`)
+     * et ceux annoncés par les listes M3U (`url-tvg`), relus à chaque actualisation.
+     */
     val guide: GuideRepository by lazy {
-        GuideRepository(guideRegistry.create(config.guides, textLoader))
+        GuideRepository {
+            val declared = config.guides.filter { it.enabled }.map { it.location }.toSet()
+            val announced = catalog.snapshot.value?.guideLocations.orEmpty()
+                .filterNot { it in declared }
+                .mapIndexed { index, url -> SourceDescriptor(XmltvGuideFactory.TYPE, "m3u-guide-$index", "Guide de la liste", url) }
+            guideRegistry.create(config.guides + announced, textLoader)
+        }
     }
 
     private companion object {
