@@ -9,20 +9,14 @@ Répartition et suivi des tâches. Chaque tâche a un identifiant `T-xxx` repris
 
 | ID | Tâche | Responsable | Statut | Dépend de | Branche / PR | Notes |
 |----|-------|-------------|--------|-----------|--------------|-------|
-| T-001 | Créer les fichiers de coordination (COMMUNICATION, TASKS, PROJECT, CHANGELOG) | Claude | Fait | — | `main` | |
-| T-002 | Répondre aux questions Q1 à Q3 (plateformes, contenu, backend) | eies37 | En cours | — | — | Q1 : Android TV. Q2 : tout. Q3 : ouverte |
-| T-003 | Relire les règles de communication et la répartition proposée | ChatGPT | En revue | T-001 | `chatgpt/T-007-interface-smart-tv` | Réponses consignées dans COMMUNICATION.md |
-| T-004 | Compléter le cahier des charges fonctionnel dans `PROJECT.md` | ChatGPT + eies37 | À faire | T-002 | — | Vision, public, priorités |
-| T-005 | Choisir l'architecture et la stack | Claude | Fait | T-002 | PR #1 | D-002, D-003 |
-| T-006 | Socle Android TV multi-modules : sources JSON/M3U, lecteur Media3, favoris, reprise, accueil et lecteur minimaux | Claude | En revue | T-005 | PR #1 | Interface volontairement simple, à reprendre en T-007. Testé sur émulateur : accueil, direct, zapping, VOD, pause |
-| T-007 | Concevoir l'interface 10-foot définitive (accueil, fiches, lecteur, bandeau) | ChatGPT | En cours | T-006 | `chatgpt/T-007-interface-smart-tv` | Modules `feature/*` et `core/designsystem` |
-| T-008 | Mettre en place la CI (tests, build, APK, test sur émulateur) | Claude | En revue | T-006 | PR #1 | `android.yml`, `smoke.yml`, `release-test.yml` |
-| T-009 | Écran Paramètres : ajouter / activer / retirer une liste M3U depuis la TV | ChatGPT | En cours | T-006 | `chatgpt/T-009-listes-m3u` | Nouveau module `feature/settings` ; stockage des sources utilisateur côté `core/storage` (Claude peut fournir l'API) |
-| T-010 | Logos des chaînes et affiches VOD (chargement d'images léger, avec cache borné) | Claude | En revue | T-006 | `claude/T-010-logos-affiches-v2` | Champs `logoUrl` / `posterUrl` déjà disponibles |
-| T-011 | Guide des programmes (EPG, format XMLTV) | Claude | En revue | T-010 | `claude/T-011-guide-programmes-v2` | Module `source/xmltv`, `url-tvg` des listes M3U pris en compte |
-| T-012 | Identité visuelle : logo, icône, bannière TV, palette définitive | ChatGPT + eies37 | En cours | — | `chatgpt/T-012-identite-visuelle` | Proposition à valider dans `core/designsystem` et `app/src/main/res` |
-| T-013 | Signature et publication d'une version release (Play Store ou APK) | eies37 + Claude | En revue | T-007 | `claude/T-013-signature-publication` | Côté Claude prêt. eies37 : créer la clé et les 4 secrets (README) |
-| T-014 | Lint Android et tests d'interface dans la CI | Claude | En revue | T-008 | `claude/T-014-lint-tests` | Lint de tous les modules ; scénario Paramètres dans le test émulateur |
+| T-001 | Créer les fichiers de coordination (COMMUNICATION, TASKS, PROJECT, CHANGELOG) | Claude | Fait | — | `main` | Commit initial |
+| T-002 | Répondre aux questions Q1 à Q3 (plateformes, contenu, backend) | eies37 | À faire | — | — | Voir `COMMUNICATION.md` |
+| T-003 | Relire les règles de communication et la répartition proposée | ChatGPT | À faire | T-001 | — | Q4, Q5 |
+| T-004 | Compléter le cahier des charges fonctionnel dans `PROJECT.md` | ChatGPT + eies37 | À faire | T-002 | — | |
+| T-005 | Proposer les options d'architecture et de stack | Claude | À faire | T-002 | — | Décision finale : eies37 |
+| T-006 | Créer la structure du dépôt (README, .gitignore, licence, dossiers) | Claude | À faire | T-005 | — | |
+| T-007 | Concevoir la navigation à la télécommande et les écrans principaux | ChatGPT | À faire | T-004 | — | Interface 10-foot |
+| T-008 | Mettre en place la CI (lint, tests, build) | Claude | À faire | T-006 | — | |
 
 ## Règles
 
