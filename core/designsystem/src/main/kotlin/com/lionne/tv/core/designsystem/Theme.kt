@@ -25,7 +25,7 @@ data class BrandConfig(
     val onSurfaceMuted: Color,
 ) {
     companion object {
-        /** Palette provisoire « Lionne » : or fauve sur fond nuit. À valider (tâche T-015). */
+        /** Palette provisoire « Lionne » : or fauve sur fond nuit. À valider (tâche T-012). */
         val Lionne = BrandConfig(
             appName = "Lionne TV",
             primary = Color(0xFFE0A526),
