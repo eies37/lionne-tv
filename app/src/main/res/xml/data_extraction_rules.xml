@@ -1,0 +1,4 @@
+<data-extraction-rules>
+    <cloud-backup><exclude domain="sharedpref" path="lionne_user_playlists.xml" /></cloud-backup>
+    <device-transfer><exclude domain="sharedpref" path="lionne_user_playlists.xml" /></device-transfer>
+</data-extraction-rules>
